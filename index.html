@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkTree Lite - No Backend</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- Header & Profile Image --- */
+        .profile-header {
+            text-align: center;
+            padding: 30px 20px 10px;
+        }
+
+        .avatar-wrapper {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 3px solid var(--primary);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .avatar-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-upload-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 10px;
+            padding: 4px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .avatar-wrapper:hover .avatar-upload-label { opacity: 1; }
+
+        h1, h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .subtitle { color: var(--text-light); font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+        /* --- Forms & Inputs --- */
+        .editor-section { padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+
+        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: var(--text-light); }
+
+        input[type="text"], input[type="url"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border 0.2s;
+        }
+
+        input:focus { outline: none; border-color: var(--primary); }
+
+        /* --- Link List --- */
+        .link-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+
+        .link-item {
+            display: flex;
+            gap: 8px;
+            background: var(--bg);
+            padding: 10px;
+            border-radius: 8px;
+            align-items: center;
+        }
+
+        .drag-handle { cursor: grab; color: var(--text-light); padding: 0 5px; }
+        .btn-remove { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 1.2rem; }
+        .btn-remove:hover { color: var(--danger); }
+
+        /* --- Buttons --- */
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+
+        .btn-secondary { background: white; border: 1px solid var(--border); color: var(--text); margin-top: 10px;}
+        .btn-secondary:hover { background: var(--bg); }
+
+        .btn-outline { background: transparent; border: 1px dashed var(--text-light); color: var(--text-light); margin-top: 10px; }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* --- Viewer Mode --- */
+        .viewer-section { padding: 40px 20px; text-align: center; }
+
+        .view-link-card {
+            display: block;
+            background: white;
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+            padding: 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .view-link-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.15);
+            border-color: var(--primary);
+        }
+
+        /* --- Utilities --- */
+        .hidden { display: none !important; }
+
+        /* Loading/Toast */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        #toast.show { opacity: 1; }
+
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <div id="editor-view" class="">
+        <div class="profile-header">
+            <h2>Create Profile</h2>
+            <p class="subtitle">Add your details. No account needed.</p>
+
+            <div class="avatar-wrapper" onclick="document.getElementById('img-upload').click()">
+                <img id="preview-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23cbd5e1'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Profile">
+                <div class="avatar-upload-label">Click to Upload</div>
+            </div>
+            <input type="file" id="img-upload" accept="image/*" class="hidden">
+        </div>
+
+        <div class="editor-section">
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="input-name" placeholder="Your Name">
+            </div>
+
+            <div class="form-group">
+                <label>Bio / Tagline</label>
+                <input type="text" id="input-bio" placeholder="Frontend Developer @ Google">
+            </div>
+
+            <label>Links</label>
+            <div id="links-container" class="link-list">
+            </div>
+
+            <button class="btn btn-outline" onclick="addLinkRow()">+ Add Link</button>
+            <br><br>
+            <button class="btn btn-primary" onclick="generateUrl()">✨ Generate & Copy URL</button>
+        </div>
+    </div>
+
+    <div id="viewer-view" class="hidden">
+        <div class="profile-header">
+            <div class="avatar-wrapper" style="cursor: default; border: none;">
+                <img id="view-img" src="" alt="Profile">
+            </div>
+            <h1 id="view-name"></h1>
+            <p id="view-bio" class="subtitle"></p>
+        </div>
+
+        <div class="viewer-section" id="view-links">
+        </div>
+
+        <div style="padding: 20px; border-top: 1px solid var(--border);">
+            <button class="btn btn-secondary" onclick="window.location.hash=''; window.location.reload()">Create Your Own Profile</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast">URL Copied to Clipboard!</div>
+
+<script>
+    // --- STATE MANAGEMENT ---
+    let state = {
+        name: "",
+        bio: "",
+        img: null, // Base64 string
+        links: [] // Array of {label, url}
+    };
+
+    // --- DOM ELEMENTS ---
+    const editorView = document.getElementById('editor-view');
+    const viewerView = document.getElementById('viewer-view');
+    const linksContainer = document.getElementById('links-container');
+    const imgUpload = document.getElementById('img-upload');
+    const previewImg = document.getElementById('preview-img');
+
+    // --- INITIALIZATION ---
+    window.addEventListener('DOMContentLoaded', async () => {
+        if (window.location.hash.length > 1) {
+            await loadProfileFromHash();
+        } else {
+            // Default empty state link
+            addLinkRow();
+        }
+    });
+
+    window.addEventListener('hashchange', () => location.reload());
+
+    // --- EDITOR LOGIC ---
+
+    // 1. Image Handling (Resize & Compress)
+    imgUpload.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                // Resize Logic using Canvas
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Max dimensions (keep small for URL limit)
+                const MAX_SIZE = 150;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_SIZE) {
+                        height *= MAX_SIZE / width;
+                        width = MAX_SIZE;
+                    }
+                } else {
+                    if (height > MAX_SIZE) {
+                        width *= MAX_SIZE / height;
+                        height = MAX_SIZE;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Export to WebP low quality
+                const dataUrl = canvas.toDataURL('image/webp', 0.6);
+                state.img = dataUrl;
+                previewImg.src = dataUrl;
+            }
+            img.src = event.target.result;
+        }
+        reader.readAsDataURL(file);
+    });
+
+    // 2. Link Management
+    function addLinkRow(name = "", url = "") {
+        const div = document.createElement('div');
+        div.className = 'link-item';
+        div.innerHTML = `
+            <span class="drag-handle">☰</span>
+            <input type="text" placeholder="Title (e.g. GitHub)" class="link-name" value="${name}">
+            <input type="url" placeholder="https://..." class="link-url" value="${url}">
+            <button class="btn-remove" onclick="this.parentElement.remove()">×</button>
+        `;
+        linksContainer.appendChild(div);
+    }
+
+    // 3. Generate URL (Compress & Share)
+    async function generateUrl() {
+        // Collect Data
+        state.name = document.getElementById('input-name').value;
+        state.bio = document.getElementById('input-bio').value;
+
+        state.links = [];
+        document.querySelectorAll('.link-item').forEach(row => {
+            const name = row.querySelector('.link-name').value;
+            const url = row.querySelector('.link-url').value;
+            if(name && url) state.links.push({ name, url });
+        });
+
+        if(!state.name) return alert("Please enter your name.");
+
+        try {
+            const compressedHash = await compressData(state);
+            const fullUrl = `${window.location.origin}${window.location.pathname}#${compressedHash}`;
+
+            // Update URL without reloading
+            history.pushState(null, null, `#${compressedHash}`);
+
+            // Copy to clipboard
+            await navigator.clipboard.writeText(fullUrl);
+            showToast("Profile URL copied to clipboard!");
+
+            // Switch to view mode strictly for preview effect
+            // In reality, user might want to stay in edit mode, but per requirements we show preview
+            // For now, let's just alert the copy, or we can reload to show the view.
+            // Let's reload to demonstrate the persistence.
+            setTimeout(() => window.location.reload(), 1000);
+
+        } catch (err) {
+            console.error(err);
+            alert("Error generating URL. Profile might be too large (limit image size).");
+        }
+    }
+
+    // --- VIEWER LOGIC ---
+    async function loadProfileFromHash() {
+        try {
+            const hash = window.location.hash.substring(1); // remove #
+            const data = await decompressData(hash);
+            renderViewer(data);
+        } catch (e) {
+            console.error("Failed to load profile", e);
+            alert("Invalid or corrupted profile link.");
+            window.location.hash = "";
+            location.reload();
+        }
+    }
+
+    function renderViewer(data) {
+        editorView.classList.add('hidden');
+        viewerView.classList.remove('hidden');
+
+        document.getElementById('view-name').textContent = data.name;
+        document.getElementById('view-bio').textContent = data.bio;
+        if (data.img) document.getElementById('view-img').src = data.img;
+
+        const linksDiv = document.getElementById('view-links');
+        linksDiv.innerHTML = "";
+
+        data.links.forEach(link => {
+            const a = document.createElement('a');
+            a.className = 'view-link-card';
+            a.href = link.url;
+            a.target = "_blank";
+            a.textContent = link.name;
+            linksDiv.appendChild(a);
+        });
+    }
+
+    // --- COMPRESSION UTILS (The Magic) ---
+
+    // 1. JSON -> String -> Stream -> Compress -> Blob -> Buffer -> Base64
+    async function compressData(jsonObj) {
+        const jsonString = JSON.stringify(jsonObj);
+
+        // Create stream from string
+        const stream = new Blob([jsonString]).stream();
+
+        // Pipe through Deflate
+        const compressedStream = stream.pipeThrough(new CompressionStream("deflate"));
+
+        // Read stream into buffer
+        const response = await new Response(compressedStream);
+        const blob = await response.blob();
+        const buffer = await blob.arrayBuffer();
+
+        // Convert ArrayBuffer to Base64 safely
+        const base64 = base64EncArr(new Uint8Array(buffer));
+        return base64; // URL safe replacement can be added here if needed
+    }
+
+    // 2. Base64 -> Buffer -> Stream -> Decompress -> Response -> JSON
+    async function decompressData(base64) {
+        // Convert Base64 to Uint8Array
+        const bytes = base64DecToArr(base64);
+
+        const stream = new Blob([bytes]).stream();
+        const decompressedStream = stream.pipeThrough(new DecompressionStream("deflate"));
+
+        const response = new Response(decompressedStream);
+        return await response.json();
+    }
+
+    // --- HELPER: Fast Base64 <-> Uint8Array conversion for binary data ---
+    // (Standard btoa/atob fails on some binary sequences, these helpers fix that)
+
+    function base64EncArr(aBytes) {
+        const eqLen = (3 - (aBytes.length % 3)) % 3;
+        let sB64Enc = "";
+        for (let nMod3, nLen = aBytes.length, nUint24 = 0, nIdx = 0; nIdx < nLen; nIdx++) {
+            nMod3 = nIdx % 3;
+            nUint24 |= aBytes[nIdx] << ((16 >>> nMod3) & 24);
+            if (nMod3 === 2 || aBytes.length - nIdx === 1) {
+                sB64Enc += String.fromCodePoint(
+                    uint6ToB64((nUint24 >>> 18) & 63),
+                    uint6ToB64((nUint24 >>> 12) & 63),
+                    uint6ToB64((nUint24 >>> 6) & 63),
+                    uint6ToB64(nUint24 & 63)
+                );
+                nUint24 = 0;
+            }
+        }
+        return eqLen === 0 ? sB64Enc : sB64Enc.substring(0, sB64Enc.length - eqLen) + (eqLen === 1 ? "=" : "==");
+    }
+
+    function base64DecToArr(sBase64, nBlocksSize) {
+        const sB64Enc = sBase64.replace(/[^A-Za-z0-9+/]/g, "");
+        const nInLen = sB64Enc.length;
+        const nOutLen = (nBlocksSize ? Math.ceil((nInLen * 3 + 1 >> 2) / nBlocksSize) * nBlocksSize : nInLen * 3 + 1 >> 2) - (sB64Enc.indexOf("=") > -1 ? sB64Enc.length - sB64Enc.indexOf("=") : 0);
+        const aBytes = new Uint8Array(nOutLen);
+        for (let nMod3, nMod4, nUint24 = 0, nOutIdx = 0, nInIdx = 0; nInIdx < nInLen; nInIdx++) {
+            nMod4 = nInIdx & 3;
+            nUint24 |= b64ToUint6(sB64Enc.charCodeAt(nInIdx)) << 6 * (3 - nMod4);
+            if (nMod4 === 3 || nInLen - nInIdx === 1) {
+                for (nMod3 = 0; nMod3 < 3 && nOutIdx < nOutLen; nMod3++, nOutIdx++) {
+                    aBytes[nOutIdx] = nUint24 >>> (16 >>> nMod3 & 24) & 255;
+                }
+                nUint24 = 0;
+            }
+        }
+        return aBytes;
+    }
+
+    function uint6ToB64(nUint6) {
+        return nUint6 < 26 ? nUint6 + 65 : nUint6 < 52 ? nUint6 + 71 : nUint6 < 62 ? nUint6 - 4 : nUint6 === 62 ? 43 : nUint6 === 63 ? 47 : 65;
+    }
+
+    function b64ToUint6(nChr) {
+        return nChr > 64 && nChr < 91 ? nChr - 65 : nChr > 96 && nChr < 123 ? nChr - 71 : nChr > 47 && nChr < 58 ? nChr + 4 : nChr === 43 ? 62 : nChr === 47 ? 63 : 0;
+    }
+
+    // --- UI UTILS ---
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+</script>
+
+</body>
+</html>
