@@ -8,13 +8,15 @@
         :root {
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
-            --bg: #f8fafc;
+            --bg: #f1f5f9;
             --card-bg: #ffffff;
             --text: #0f172a;
             --text-light: #64748b;
             --border: #e2e8f0;
             --danger: #ef4444;
-            --radius: 12px;
+            --radius: 16px;
+            --panel-left-bg: #eff6ff; /* Light Blue for Instructions */
+            --panel-left-text: #1e3a8a;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -29,197 +31,290 @@
             padding: 20px;
         }
 
+        /* --- Main Layout Container --- */
         .container {
             width: 100%;
-            max-width: 480px;
+            max-width: 950px; /* Wider for split view */
             background: var(--card-bg);
             border-radius: var(--radius);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             position: relative;
-            padding-bottom: 20px;
+            display: flex; /* Flex to handle Viewer mode centering */
+            flex-direction: column;
         }
 
-        /* --- Header & Profile Image --- */
-        .profile-header {
-            text-align: center;
-            padding: 30px 20px 10px;
+        /* --- SPLIT LAYOUT (Editor Mode) --- */
+        #editor-view {
+            display: flex;
+            width: 100%;
+            min-height: 600px;
         }
+
+        /* LEFT PANEL: Instructions */
+        .left-panel {
+            flex: 0.8; /* 40% width */
+            background: var(--panel-left-bg);
+            padding: 40px;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* RIGHT PANEL: Form */
+        .right-panel {
+            flex: 1.2; /* 60% width */
+            padding: 40px;
+            background: white;
+            overflow-y: auto;
+            max-height: 85vh; /* Scrollable form if too tall */
+        }
+
+        /* Mobile Responsive: Stack them */
+        @media (max-width: 768px) {
+            #editor-view { flex-direction: column; }
+            .left-panel { padding: 30px 20px; border-right: none; border-bottom: 1px solid var(--border); }
+            .right-panel { padding: 30px 20px; max-height: none; }
+            .container { margin-top: 20px; margin-bottom: 20px; }
+        }
+
+        /* --- Typography & Elements --- */
+        h2 { font-size: 1.8rem; margin-bottom: 10px; color: var(--text); }
+        h3 { font-size: 1.2rem; margin-bottom: 15px; color: var(--panel-left-text); }
+        .subtitle { color: var(--text-light); font-size: 0.95rem; margin-bottom: 25px; line-height: 1.5; }
+
+        /* --- INSTRUCTION STEPS (Left Panel) --- */
+        .step-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            background: #3b82f6;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            flex-shrink: 0;
+            margin-top: 2px;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+        }
+
+        .step-content h4 { font-size: 1rem; color: var(--panel-left-text); margin-bottom: 4px; }
+        .step-content p { font-size: 0.9rem; color: #475569; line-height: 1.5; }
+
+        .pro-tip {
+            margin-top: auto; /* Push to bottom */
+            background: rgba(255,255,255,0.6);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--panel-left-text);
+            border: 1px dashed #93c5fd;
+        }
+
+        /* --- FORM ELEMENTS (Right Panel) --- */
+        .avatar-section { text-align: center; margin-bottom: 25px; }
 
         .avatar-wrapper {
             width: 100px;
             height: 100px;
-            margin: 0 auto 15px;
+            margin: 0 auto 10px;
             border-radius: 50%;
             background: var(--bg);
             border: 3px solid var(--primary);
             overflow: hidden;
             position: relative;
-            cursor: default;
         }
 
-        .avatar-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .avatar-wrapper img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Linkable Avatar Cursor */
-        .avatar-linkable { cursor: pointer; transition: transform 0.2s; }
-        .avatar-linkable:hover { transform: scale(1.05); }
+        .form-group { margin-bottom: 20px; }
 
-        h1, h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-        .subtitle { color: var(--text-light); font-size: 0.9rem; margin-bottom: 1.5rem; }
-
-        /* --- Forms & Inputs --- */
-        .editor-section { padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-
-        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: var(--text-light); }
+        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-light); }
 
         input[type="text"], input[type="url"] {
             width: 100%;
-            padding: 10px 12px;
+            padding: 12px 14px;
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 0.95rem;
-            transition: border 0.2s;
+            transition: all 0.2s;
+            background: #f8fafc;
         }
 
-        input:focus { outline: none; border-color: var(--primary); }
+        input:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
 
-        .checkbox-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            margin-top: 5px;
-            cursor: pointer;
-        }
-
-        /* --- Link List --- */
-        .link-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        /* Links */
+        .link-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
 
         .link-item {
             display: flex;
             gap: 8px;
-            background: var(--bg);
-            padding: 10px;
-            border-radius: 8px;
             align-items: center;
+            background: #f8fafc;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid transparent;
         }
+        .link-item:hover { border-color: #cbd5e1; }
 
-        .drag-handle { color: var(--text-light); padding: 0 5px; user-select: none; }
-        .btn-remove { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 1.2rem; }
+        .drag-handle { color: #94a3b8; padding: 0 8px; cursor: move; font-size: 1.2rem; }
+        .btn-remove { background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.5rem; line-height: 1; padding: 0 5px; }
         .btn-remove:hover { color: var(--danger); }
 
-        /* --- Buttons --- */
+        /* Buttons */
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: none;
             border-radius: 8px;
             font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
             transition: transform 0.1s, background 0.2s;
         }
-
         .btn:active { transform: scale(0.98); }
-
-        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
         .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: white; border: 1px solid var(--border); color: var(--text); padding: 10px; font-size: 0.9rem; }
+        .btn-secondary:hover { background: #f1f5f9; }
+        .btn-outline { background: white; border: 1px dashed #94a3b8; color: #64748b; margin-top: 5px; }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: #eff6ff; }
 
-        .btn-secondary { background: white; border: 1px solid var(--border); color: var(--text); margin-top: 10px;}
-        .btn-secondary:hover { background: var(--bg); }
-
-        .btn-outline { background: transparent; border: 1px dashed var(--text-light); color: var(--text-light); margin-top: 10px; }
-        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
-
-        /* --- Viewer Mode --- */
-        .viewer-section { padding: 20px 20px; text-align: center; }
+        /* --- VIEWER MODE (Centered Mobile Card) --- */
+        #viewer-view {
+            width: 100%;
+            max-width: 480px; /* Restrict width for phone look */
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
 
         .view-link-card {
             display: block;
             background: white;
             border: 1px solid var(--border);
             margin-bottom: 12px;
-            padding: 14px;
-            border-radius: 8px;
+            padding: 16px;
+            border-radius: 12px;
             text-decoration: none;
             color: var(--text);
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.2s;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
+        .view-link-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15); border-color: var(--primary); }
 
-        .view-link-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.15);
-            border-color: var(--primary);
-        }
-
-        /* --- Utilities --- */
+        /* Utilities */
         .hidden { display: none !important; }
-        .error-msg { color: var(--danger); font-size: 0.8rem; margin-top: 4px; display: none; }
+        .error-msg { color: var(--danger); font-size: 0.8rem; margin-top: 5px; display: none; }
 
-        /* Loading/Toast */
+        /* Toast */
         #toast {
             position: fixed;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            background: #333;
+            background: #1e293b;
             color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s;
             z-index: 1000;
         }
-        #toast.show { opacity: 1; }
-
+        #toast.show { opacity: 1; bottom: 40px; }
     </style>
 </head>
 <body>
 
 <div class="container" id="app">
-    <div id="editor-view" class="">
-        <div class="profile-header">
-            <h2>Create Profile</h2>
-            <p class="subtitle">Enter your details below.</p>
 
-            <div class="avatar-wrapper">
-                <img id="preview-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23cbd5e1'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Profile">
+    <div id="editor-view" class="">
+
+        <div class="left-panel">
+            <h2>Welcome! 👋</h2>
+            <p class="subtitle">Create a professional "Link-in-Bio" page in seconds. No login required.</p>
+
+            <div class="step-item">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h4>Photo</h4>
+                    <p>Enter a GitHub username or paste a direct image URL.</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h4>Details</h4>
+                    <p>Add your name and a short bio describing what you do.</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h4>Links</h4>
+                    <p>Add unlimited links to your portfolio, socials, or projects.</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                    <h4>Share</h4>
+                    <p>Click "Generate". The app creates a unique link containing your data.</p>
+                </div>
+            </div>
+
+            <div class="pro-tip">
+                💡 <b>Privacy First:</b> Your data is stored inside the URL itself. We do not store any data on our servers.
             </div>
         </div>
 
-        <div class="editor-section">
-            <div class="form-group">
-                <label>Profile Image Source</label>
-                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <button class="btn btn-secondary" style="margin-top:0; flex:1;" onclick="toggleImageSource('github')">Use GitHub</button>
-                    <button class="btn btn-secondary" style="margin-top:0; flex:1;" onclick="toggleImageSource('url')">Use Direct URL</button>
-                </div>
+        <div class="right-panel">
 
+            <div class="avatar-section">
+                <div class="avatar-wrapper">
+                    <img id="preview-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23cbd5e1'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Profile">
+                </div>
+                <div style="display: flex; gap: 8px; justify-content: center; margin-top: 10px;">
+                    <button class="btn btn-secondary" style="width: auto;" onclick="toggleImageSource('github')">GitHub User</button>
+                    <button class="btn btn-secondary" style="width: auto;" onclick="toggleImageSource('url')">Image URL</button>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <div id="github-input-group">
                     <input type="text" id="github-username" placeholder="GitHub Username (e.g. torvalds)" oninput="fetchGithubImage(this.value)">
                     <p class="error-msg" id="github-error">User not found</p>
                 </div>
-
                 <div id="url-input-group" class="hidden">
                     <input type="url" id="direct-img-url" placeholder="https://example.com/me.jpg" oninput="updatePreview(this.value)">
                     <p class="error-msg" id="url-error">Invalid URL</p>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" id="chk-link-image">
-                    Link Profile Picture?
+            <div class="form-group" style="background: #f1f5f9; padding: 10px; border-radius: 8px;">
+                <label style="margin-bottom: 0; cursor: pointer; display: flex; align-items: center;">
+                    <input type="checkbox" id="chk-link-image" style="width: auto; margin-right: 8px;">
+                    Make profile picture clickable?
                 </label>
-                <input type="url" id="img-link-url" class="hidden" placeholder="URL to open when image clicked (e.g. portfolio)" style="margin-top: 5px;">
+                <input type="url" id="img-link-url" class="hidden" placeholder="Link (e.g. https://myportfolio.com)" style="margin-top: 10px; background: white;">
             </div>
 
             <div class="form-group">
@@ -228,53 +323,55 @@
             </div>
 
             <div class="form-group">
-                <label>Bio / Tagline</label>
-                <input type="text" id="input-bio" placeholder="Frontend Developer">
+                <label>Bio</label>
+                <input type="text" id="input-bio" placeholder="Role / Tagline">
             </div>
 
-            <label>Links</label>
-            <div id="links-container" class="link-list"></div>
+            <div class="form-group">
+                <label>Your Links</label>
+                <div id="links-container" class="link-list"></div>
+                <button class="btn btn-outline" onclick="addLinkRow()">+ Add New Link</button>
+            </div>
 
-            <button class="btn btn-outline" onclick="addLinkRow()">+ Add Link</button>
-            <br><br>
+            <br>
             <button class="btn btn-primary" onclick="generateUrl()">✨ Generate Shareable Link</button>
         </div>
     </div>
 
     <div id="viewer-view" class="hidden">
-        <div class="profile-header">
+        <div style="margin-bottom: 30px;">
             <a id="view-img-link" class="hidden" target="_blank" rel="noopener noreferrer">
-                <div class="avatar-wrapper avatar-linkable">
-                    <img id="view-img" src="" alt="Profile" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23cbd5e1\'%3E%3Cpath d=\'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z\'/%3E%3C/svg%3E'">
+                <div class="avatar-wrapper" style="width: 120px; height: 120px; border-color: var(--primary); cursor: pointer; transition: transform 0.2s;">
+                    <img id="view-img" src="" alt="Profile">
                 </div>
             </a>
-
-            <div id="view-img-static" class="avatar-wrapper">
+            <div id="view-img-static" class="avatar-wrapper" style="width: 120px; height: 120px; border-color: var(--primary);">
                 <img id="view-img-2" src="" alt="Profile">
             </div>
 
-            <h1 id="view-name"></h1>
-            <p id="view-bio" class="subtitle"></p>
+            <h1 id="view-name" style="margin-top: 15px;"></h1>
+            <p id="view-bio" class="subtitle" style="margin-bottom: 0;"></p>
         </div>
 
-        <div class="viewer-section" id="view-links">
+        <div id="view-links">
         </div>
 
-        <div style="padding: 20px; border-top: 1px solid var(--border);">
-            <button class="btn btn-secondary" onclick="window.location.hash=''; window.location.reload()">Create Your Own</button>
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border);">
+            <button class="btn btn-secondary" onclick="window.location.hash=''; window.location.reload()">Create Your Own Profile</button>
         </div>
     </div>
+
 </div>
 
 <div id="toast">Link Copied!</div>
 
 <script>
-    // --- STATE ---
+    // --- STATE MANAGEMENT ---
     let state = {
         name: "",
         bio: "",
-        imgUrl: "", // Stores the string URL, not base64
-        imgLink: "", // Where the image links TO (optional)
+        imgUrl: "",
+        imgLink: "",
         links: []
     };
 
@@ -286,36 +383,37 @@
     const imgLinkCheckbox = document.getElementById('chk-link-image');
     const imgLinkInput = document.getElementById('img-link-url');
 
-    // --- INITIALIZATION ---
+    // --- INIT ---
     window.addEventListener('DOMContentLoaded', async () => {
-        // Check if URL has hash data
         if (window.location.hash.length > 5) {
             await loadProfileFromHash();
         } else {
-            addLinkRow(); // Initialize one empty row
+            // New profile: Start with 1 empty link
+            addLinkRow();
         }
     });
 
     window.addEventListener('hashchange', () => location.reload());
 
-    // --- IMAGE LOGIC ---
+    // --- IMAGE HANDLING ---
     function toggleImageSource(source) {
+        const ghGroup = document.getElementById('github-input-group');
+        const urlGroup = document.getElementById('url-input-group');
+
         if (source === 'github') {
-            document.getElementById('github-input-group').classList.remove('hidden');
-            document.getElementById('url-input-group').classList.add('hidden');
+            ghGroup.classList.remove('hidden');
+            urlGroup.classList.add('hidden');
         } else {
-            document.getElementById('github-input-group').classList.add('hidden');
-            document.getElementById('url-input-group').classList.remove('hidden');
+            ghGroup.classList.add('hidden');
+            urlGroup.classList.remove('hidden');
         }
     }
 
-    // Debounce function to prevent API spam
     let debounceTimer;
     function fetchGithubImage(username) {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
             if (!username) return;
-            // GitHub avatar URL pattern
             const url = `https://github.com/${username}.png`;
             updatePreview(url);
         }, 500);
@@ -323,186 +421,158 @@
 
     function updatePreview(url) {
         if (!url) return;
-
-        // Validate URL format roughly
-        try {
-            new URL(url); // Will throw if invalid
-            state.imgUrl = url;
-            previewImg.src = url;
-            previewImg.onerror = () => {
-                previewImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef4444'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E";
-                document.getElementById('url-error').style.display = 'block';
-            };
-            document.getElementById('url-error').style.display = 'none';
-        } catch (e) {
-            // Invalid URL string
-        }
+        state.imgUrl = url;
+        previewImg.src = url;
+        // Simple error fallback
+        previewImg.onerror = () => {
+             previewImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef4444'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E";
+        };
     }
 
-    // Toggle Image Link Input
+    // Toggle Link Input
     imgLinkCheckbox.addEventListener('change', (e) => {
         if (e.target.checked) {
             imgLinkInput.classList.remove('hidden');
+            imgLinkInput.focus();
         } else {
             imgLinkInput.classList.add('hidden');
             imgLinkInput.value = "";
         }
     });
 
-
-    // --- LINK LOGIC ---
+    // --- LINK HANDLING ---
     function addLinkRow(name = "", url = "") {
         const div = document.createElement('div');
         div.className = 'link-item';
         div.innerHTML = `
-            <span class="drag-handle">::</span>
-            <input type="text" placeholder="Title" class="link-name" value="${name}">
-            <input type="url" placeholder="https://" class="link-url" value="${url}">
-            <button class="btn-remove" onclick="this.parentElement.remove()" aria-label="Remove link">×</button>
+            <span class="drag-handle">☰</span>
+            <input type="text" placeholder="Title" class="link-name" value="${name}" style="flex:1;">
+            <input type="url" placeholder="https://" class="link-url" value="${url}" style="flex:2;">
+            <button class="btn-remove" onclick="this.parentElement.remove()" title="Remove">×</button>
         `;
         linksContainer.appendChild(div);
     }
 
-    // --- GENERATE & COMPRESS ---
+    // --- GENERATE ---
     async function generateUrl() {
-        // 1. Gather Data
+        // Collect Data
         state.name = document.getElementById('input-name').value.trim();
         state.bio = document.getElementById('input-bio').value.trim();
         state.imgLink = imgLinkCheckbox.checked ? document.getElementById('img-link-url').value.trim() : "";
 
-        // 2. Gather Links
         state.links = [];
-        const rows = document.querySelectorAll('.link-item');
-        rows.forEach(row => {
+        document.querySelectorAll('.link-item').forEach(row => {
             const name = row.querySelector('.link-name').value.trim();
             const url = row.querySelector('.link-url').value.trim();
-            if (name && url) state.links.push({ n: name, u: url }); // Short keys to save space
+            if (name && url) state.links.push({ n: name, u: url });
         });
 
-        if (!state.name) return alert("Please enter a name.");
+        if (!state.name) return alert("Please enter your Name.");
 
-        // 3. Compress
         try {
-            // Minify structure for smaller URL
-            const minifiedData = [
-                state.name,
-                state.bio,
-                state.imgUrl,
-                state.imgLink,
-                state.links
-            ];
+            // Minified Array format
+            const data = [state.name, state.bio, state.imgUrl, state.imgLink, state.links];
+            const hash = await compressData(data);
 
-            const compressedHash = await compressData(minifiedData);
-            const fullUrl = `${window.location.origin}${window.location.pathname}#${compressedHash}`;
+            const fullUrl = `${window.location.origin}${window.location.pathname}#${hash}`;
 
-            // 4. Update History & Clipboard
-            history.pushState(null, null, `#${compressedHash}`);
+            history.pushState(null, null, `#${hash}`);
             await navigator.clipboard.writeText(fullUrl);
 
-            showToast("Link copied! Share it now.");
+            showToast("✨ Link Copied! Opening preview...");
 
-            // Optional: reload to see "Viewer" mode immediately
+            // Short delay then reload to show viewer
             setTimeout(() => window.location.reload(), 1500);
 
-        } catch (err) {
-            console.error(err);
-            alert("Error generating link. Please try again.");
+        } catch (e) {
+            console.error(e);
+            alert("Error generating link.");
         }
     }
 
-    // --- VIEWER ---
+    // --- VIEWER MODE ---
     async function loadProfileFromHash() {
         try {
             const hash = window.location.hash.substring(1);
             const data = await decompressData(hash);
 
-            // Support for minified array structure
-            const [name, bio, imgUrl, imgLink, links] = Array.isArray(data) ? data : [data.name, data.bio, data.imgUrl, data.imgLink, data.links];
+            // Support both formats
+            let name, bio, imgUrl, imgLink, links;
+            if (Array.isArray(data)) {
+                [name, bio, imgUrl, imgLink, links] = data;
+            } else {
+                ({ name, bio, imgUrl, imgLink, links } = data);
+            }
 
-            renderViewer(name, bio, imgUrl, imgLink, links);
+            // Hide Editor, Show Viewer (remove flex split, make container simple)
+            document.querySelector('.container').style.maxWidth = "480px";
+            editorView.classList.add('hidden');
+            viewerView.classList.remove('hidden');
+
+            // Render
+            document.title = `${name} - Profile`;
+            document.getElementById('view-name').innerText = name;
+            document.getElementById('view-bio').innerText = bio;
+
+            // Avatar Logic
+            const staticWrap = document.getElementById('view-img-static');
+            const linkWrap = document.getElementById('view-img-link');
+            const imgEl = document.getElementById('view-img');
+            const imgEl2 = document.getElementById('view-img-2');
+
+            if(imgUrl) {
+                if(imgLink) {
+                    staticWrap.classList.add('hidden');
+                    linkWrap.classList.remove('hidden');
+                    linkWrap.href = imgLink;
+                    imgEl.src = imgUrl;
+                } else {
+                    linkWrap.classList.add('hidden');
+                    staticWrap.classList.remove('hidden');
+                    imgEl2.src = imgUrl;
+                }
+            } else {
+                staticWrap.classList.add('hidden');
+                linkWrap.classList.add('hidden');
+            }
+
+            // Render Links
+            const container = document.getElementById('view-links');
+            container.innerHTML = "";
+            links.forEach(l => {
+                const a = document.createElement('a');
+                a.className = 'view-link-card';
+                a.href = l.u || l.url;
+                a.target = "_blank";
+                a.rel = "noopener noreferrer";
+                a.textContent = l.n || l.name;
+                container.appendChild(a);
+            });
+
         } catch (e) {
             console.error(e);
-            alert("This link is broken or invalid.");
-            // Reset to editor
+            alert("Invalid Link");
             window.location.hash = "";
             location.reload();
         }
     }
 
-    function renderViewer(name, bio, imgUrl, imgLink, links) {
-        editorView.classList.add('hidden');
-        viewerView.classList.remove('hidden');
-
-        document.title = `${name} - Profile`;
-        document.getElementById('view-name').textContent = name;
-        document.getElementById('view-bio').textContent = bio;
-
-        // Image Logic
-        const staticImgWrapper = document.getElementById('view-img-static');
-        const linkedImgWrapper = document.getElementById('view-img-link');
-        const viewImg = document.getElementById('view-img');
-        const viewImg2 = document.getElementById('view-img-2');
-
-        if (imgUrl) {
-            if (imgLink) {
-                // Show Linked Version
-                staticImgWrapper.classList.add('hidden');
-                linkedImgWrapper.classList.remove('hidden');
-                linkedImgWrapper.href = imgLink;
-                viewImg.src = imgUrl;
-            } else {
-                // Show Static Version
-                linkedImgWrapper.classList.add('hidden');
-                staticImgWrapper.classList.remove('hidden');
-                viewImg2.src = imgUrl;
-            }
-        } else {
-            // No Image
-            staticImgWrapper.classList.add('hidden');
-            linkedImgWrapper.classList.add('hidden');
-        }
-
-        // Links Logic
-        const linksDiv = document.getElementById('view-links');
-        linksDiv.innerHTML = "";
-
-        if (links && links.length > 0) {
-            links.forEach(link => {
-                // Handle both old object structure and new minified keys
-                const label = link.n || link.name;
-                const url = link.u || link.url;
-
-                const a = document.createElement('a');
-                a.className = 'view-link-card';
-                a.href = url;
-                a.target = "_blank";
-                a.rel = "noopener noreferrer"; // Security best practice
-                a.textContent = label;
-                linksDiv.appendChild(a);
-            });
-        }
-    }
-
-    // --- COMPRESSION (Deflate + Base64) ---
-    async function compressData(jsonObj) {
-        const jsonString = JSON.stringify(jsonObj);
-        const stream = new Blob([jsonString]).stream();
-        const compressedStream = stream.pipeThrough(new CompressionStream("deflate"));
-        const response = await new Response(compressedStream);
-        const blob = await response.blob();
+    // --- COMPRESSION UTILS ---
+    async function compressData(obj) {
+        const str = JSON.stringify(obj);
+        const stream = new Blob([str]).stream().pipeThrough(new CompressionStream("deflate"));
+        const blob = await new Response(stream).blob();
         const buffer = await blob.arrayBuffer();
         return base64EncArr(new Uint8Array(buffer));
     }
 
-    async function decompressData(base64) {
-        const bytes = base64DecToArr(base64);
-        const stream = new Blob([bytes]).stream();
-        const decompressedStream = stream.pipeThrough(new DecompressionStream("deflate"));
-        const response = new Response(decompressedStream);
-        return await response.json();
+    async function decompressData(b64) {
+        const bytes = base64DecToArr(b64);
+        const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate"));
+        return await new Response(stream).json();
     }
 
-    // --- Base64 Helpers (Binary Safe) ---
+    // Base64 Helpers
     function base64EncArr(aBytes) {
         const eqLen = (3 - (aBytes.length % 3)) % 3;
         let sB64Enc = "";
@@ -540,15 +610,9 @@
         return aBytes;
     }
 
-    function uint6ToB64(nUint6) {
-        return nUint6 < 26 ? nUint6 + 65 : nUint6 < 52 ? nUint6 + 71 : nUint6 < 62 ? nUint6 - 4 : nUint6 === 62 ? 43 : nUint6 === 63 ? 47 : 65;
-    }
+    function uint6ToB64(nUint6) { return nUint6 < 26 ? nUint6 + 65 : nUint6 < 52 ? nUint6 + 71 : nUint6 < 62 ? nUint6 - 4 : nUint6 === 62 ? 43 : nUint6 === 63 ? 47 : 65; }
+    function b64ToUint6(nChr) { return nChr > 64 && nChr < 91 ? nChr - 65 : nChr > 96 && nChr < 123 ? nChr - 71 : nChr > 47 && nChr < 58 ? nChr + 4 : nChr === 43 ? 62 : nChr === 47 ? 63 : 0; }
 
-    function b64ToUint6(nChr) {
-        return nChr > 64 && nChr < 91 ? nChr - 65 : nChr > 96 && nChr < 123 ? nChr - 71 : nChr > 47 && nChr < 58 ? nChr + 4 : nChr === 43 ? 62 : nChr === 47 ? 63 : 0;
-    }
-
-    // --- UI Helper ---
     function showToast(msg) {
         const t = document.getElementById('toast');
         t.innerText = msg;
